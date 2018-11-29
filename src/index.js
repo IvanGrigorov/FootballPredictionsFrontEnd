@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
+let request = require('ajax-request');
 const url = require('url');
 const path = require('path');
 
@@ -72,8 +73,8 @@ app.on('activate', () => {
 
 ipcMain.on('loginViewInitiate', () => {
 
-  let loginWin = new BrowserWindow({width: 300, height: 400});
-
+  let loginWin = new BrowserWindow({ width: 300, height: 400 });
+  //loginWin.setResizable(false);
   loginWin.loadURL(
       url.format({
         pathname: path.join(__dirname, '../views/login/index.html'),
@@ -88,20 +89,9 @@ ipcMain.on('loginViewInitiate', () => {
 
 ipcMain.on('showStandings', () => {
   // Get Standings from server
-  mainWindow.webContents.send('sendStandingsData', [
-    {
-      name: 'Ivan',
-      points: 10,
-    },
-    {
-      name: 'Ivan G',
-      points: 20,
-
-    },
-    {
-      name: 'Ivan K G',
-      points: 30,
-
-    },
-  ]);
+  request('http://localhost:8080/my-project/public/11/general/standings', 
+    function(err, res, body) {
+      const info = JSON.parse(body);
+      mainWindow.webContents.send('sendStandingsData', info.Msg);
+    });
 });
