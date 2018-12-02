@@ -7,7 +7,7 @@ const { ipcRenderer } = require('electron');
 const StandingsListItem = props => (
   <div className="list-group">
     <button type="button" className="list-group-item list-group-item-action">
-      <span>{props.standing.name}</span> <span>{props.standing.points}</span>
+      <span>{props.standing.name}</span> <span>{props.standing.Points}</span>
     </button>
   </div>
 );

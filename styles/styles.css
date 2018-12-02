@@ -1,3 +1,7 @@
 .homeInfo {
     margin-top: 10px;
 }
+
+.btn.btn-danger {
+    float: right;
+}

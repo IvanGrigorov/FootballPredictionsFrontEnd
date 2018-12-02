@@ -2,6 +2,8 @@ const { ipcRenderer } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
 
+    ipcRenderer.send('getUserData');
+
     const logInButton = document.querySelector('#logInButton');
     const standingsButton = document.querySelector('#standingsButton');
 
