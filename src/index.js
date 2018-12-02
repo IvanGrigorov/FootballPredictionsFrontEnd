@@ -11,6 +11,7 @@ const path = require('path');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let gameWin;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -111,7 +112,7 @@ app.on('activate', () => {
 
 ipcMain.on('loginViewInitiate', () => {
   let loginWin = new BrowserWindow({ width: 300, height: 400 });
-  //loginWin.setResizable(false);
+  loginWin.setResizable(false);
   loginWin.loadURL(
       url.format({
         pathname: path.join(__dirname, '../views/login/index.html'),
@@ -146,9 +147,45 @@ ipcMain.on('getUserData', () => {
   }
 });
 
+
+// //////////////////////////////////////////////////////
+// Load user data (if exists) on rendering Main View ////
+// //////////////////////////////////////////////////////
+
+ipcMain.on('showGames', () => {
+  const urlForGettingAllGames = hostUrlForRequests + 'allGames';
+  getRequest(urlForGettingAllGames, (body) => {
+    const parsedRequestBody = JSON.parse(body);
+    mainWindow.webContents.send('sendAllGamesInfo', parsedRequestBody.Msg.Msg);
+  });
+});
+
+
+// //////////////////////////////////////////////////////
+// Load game data and open GAME Window ////
+// //////////////////////////////////////////////////////
+
+ipcMain.on('openGameDetails', (event, data) => {
+  global.CurrentSelectedGame = data;
+  gameWin = new BrowserWindow({ width: 800, height: 600 });
+  gameWin.setResizable(false);
+  gameWin.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/gameDetails/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+
+  gameWin.on('closed', () => {
+    gameWin = null;
+  });
+});
+
+
 // //////////////////////////////////////////
 // //////////////////////////////////////////
-// Ipc Communication for HOME VIEW //////////
+// Ipc Communication for LOGIN VIEW /////////
 // //////////////////////////////////////////
 // //////////////////////////////////////////
 
@@ -160,4 +197,24 @@ ipcMain.on('getUserData', () => {
 ipcMain.on('onLogin', (event, data) => {
   const userInfo = JSON.parse(data);
   mainWindow.webContents.send('recieveUserInfo', userInfo);
+});
+
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// Ipc Communication for GAME VIEW /////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+
+
+// //////////////////////////////////////////
+// Load game standings in GAME Window ///////
+// //////////////////////////////////////////
+
+ipcMain.on('getGameStandings', () => {
+  const urlForGettingStandingsForGame = hostUrlForRequests + global.CurrentSelectedGame.gameId + '/general/standings';
+  getRequest(urlForGettingStandingsForGame, (body) => {
+    const parsedBody = JSON.parse(body);
+    gameWin.webContents.send('sendStandings', { standings: parsedBody.Msg, gameId: global.CurrentSelectedGame.gameId });
+  });
 });

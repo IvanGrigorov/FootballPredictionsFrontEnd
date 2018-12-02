@@ -3,6 +3,8 @@ import React from 'react';
 const { Header } = require('./../staticComponents/staticComponents');
 const { PredictionList } = require('./../predictions/index');
 const { StandingsList } = require('./../standings/index');
+const { GamesList } = require('./../games/index');
+
 
 
 const { ipcRenderer } = require('electron');
@@ -25,7 +27,7 @@ const NavBar = (props) => (
       <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Standings' })} id="standingsButton">Standings</a>
     </li>
     <li className="nav-item">
-      <a className="nav-link" href="#">Games</a>
+      <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Games' })} id="gamesButton">Games</a>
     </li>
   </ul>
 );
@@ -81,6 +83,7 @@ class Main extends React.Component {
         {(this.state.View === 'Standings') ? <StandingsList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Predictions') ? <PredictionList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Home') ? <HomeInfo /> : null}
+        {(this.state.View === 'Games') ? <GamesList /> : null}
       </div>
     );
   }
