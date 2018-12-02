@@ -2,7 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
-let request = require('ajax-request');
+//let request = require('ajax-request');
+const { getRequest } = require('./../tools/ajax');
+const { hostUrlForRequests, getToken } = require('./../tools/settings');
 const url = require('url');
 const path = require('path');
 
@@ -13,6 +15,33 @@ let mainWindow;
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
 if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
+
+// ///////////////////////////////////////////////////
+// Check for user info before opening main window ////
+// ///////////////////////////////////////////////////
+
+const openMainWindowWithUserInfo = () => {
+  return new Promise(function(resolve, reject) {
+    getToken().then(
+      (token) => {
+        if (token) {
+          getRequest(hostUrlForRequests+'info', (body) => {
+            global.UserInfo = JSON.parse(body);
+            createWindow();
+            resolve();
+          });
+        } else {
+          createWindow();
+          resolve();
+        }
+      }
+    );
+  });
+};
+
+// ////////////////////////
+// Opening main window ////
+// ////////////////////////
 
 const createWindow = async () => {
   // Create the browser window.
@@ -46,7 +75,7 @@ const createWindow = async () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', openMainWindowWithUserInfo);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -69,10 +98,18 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 
-// Ipc Communication for HOME VIEW
+// /////////////////////////////////////////
+// /////////////////////////////////////////
+// Ipc Communication for HOME VIEW//////////
+// /////////////////////////////////////////
+// /////////////////////////////////////////
+
+
+// ////////////////////////
+// Create Login Window ////
+// ////////////////////////
 
 ipcMain.on('loginViewInitiate', () => {
-
   let loginWin = new BrowserWindow({ width: 300, height: 400 });
   //loginWin.setResizable(false);
   loginWin.loadURL(
@@ -82,6 +119,7 @@ ipcMain.on('loginViewInitiate', () => {
         slashes: true,
       }));
 
+
   loginWin.on('closed', () => {
     loginWin = null;
   });
@@ -89,9 +127,37 @@ ipcMain.on('loginViewInitiate', () => {
 
 ipcMain.on('showStandings', () => {
   // Get Standings from server
-  request('http://localhost:8080/my-project/public/11/general/standings', 
-    function(err, res, body) {
-      const info = JSON.parse(body);
-      mainWindow.webContents.send('sendStandingsData', info.Msg);
-    });
+  const callback = function(body) {
+    console.log(body);
+    const info = JSON.parse(body);
+    mainWindow.webContents.send('sendStandingsData', info.Msg);
+  };
+  getRequest('http://localhost:8080/my-project/public/11/general/standings', callback);
+});
+
+
+// //////////////////////////////////////////////////////
+// Load user data (if exists) on rendering Main View ////
+// //////////////////////////////////////////////////////
+
+ipcMain.on('getUserData', () => {
+  if (global.UserInfo) {
+    mainWindow.webContents.send('recieveUserInfo', global.UserInfo);
+  }
+});
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// Ipc Communication for HOME VIEW //////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+
+
+// //////////////////////////////////////////
+// Load user data in Main View on log in ////
+// //////////////////////////////////////////
+
+ipcMain.on('onLogin', (event, data) => {
+  const userInfo = JSON.parse(data);
+  mainWindow.webContents.send('recieveUserInfo', userInfo);
 });

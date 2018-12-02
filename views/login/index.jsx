@@ -3,7 +3,6 @@ import React from 'react';
 const { LoginForm } = require('./../staticComponents/loginForm');
 const { RegisterForm } = require('./../staticComponents/registerForm');
 
-//const 
 class Login extends React.Component {
   constructor(props) {
     super(props);

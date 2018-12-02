@@ -1,5 +1,10 @@
 import React from 'react';
 
+const { postRequest } = require('./../../tools/ajax');
+const { hostUrlForRequests } = require('./../../tools/settings');
+const { SuccessfullAlert, ErrorAlert } = require('./staticComponents');
+
+
 //const 
 class RegisterForm extends React.Component {
   constructor(props) {
@@ -13,7 +18,6 @@ class RegisterForm extends React.Component {
   }
 
   handleChange(event) {
-      console.log(event);
     const target = event.target;
     const value = target.value;
     const name = target.name;
@@ -24,10 +28,29 @@ class RegisterForm extends React.Component {
   }
 
   handleSubmit(event) {
+    const me = this;
     event.preventDefault();
-    console.log('Register');
-    console.log('Name' + this.state.UserName);
-    console.log('Password' + this.state.Password);
+    const dataToSend = {
+      username: this.state.UserName,
+      password: this.state.Password,
+    };
+    const url = hostUrlForRequests + 'signUp';
+    const callback = function(body) {
+      const parsedBody = JSON.parse(body);
+      console.log(parsedBody);
+      if (parsedBody.Success) {
+        me.setState({
+          SuccessfulMsg: parsedBody.Msg,
+          ErrorMsg: '',
+        });
+      } else if (parsedBody.Error) {
+        me.setState({
+          ErrorMsg: parsedBody.Msg,
+          SuccessfulMsg: '',
+        });
+      }
+    };
+    postRequest(dataToSend, url, callback);
   }
 
   render() {
@@ -49,6 +72,8 @@ class RegisterForm extends React.Component {
         </div>
         <input type="submit" className="btn btn-primary" value="Register" />
       </form>
+      <SuccessfullAlert successfulMsg={this.state.SuccessfulMsg} />
+      <ErrorAlert errorMsg={this.state.ErrorMsg} />
     </div>
     );
   }

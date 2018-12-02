@@ -1,4 +1,9 @@
 import React from 'react';
+const { postRequest, getRequest } = require('./../../tools/ajax');
+const { setToken, hostUrlForRequests } = require('./../../tools/settings');
+const { SuccessfullAlert, ErrorAlert } = require('./staticComponents');
+const { ipcRenderer } = require('electron');
+
 
 class LoginForm extends React.Component {
   constructor(props) {
@@ -13,7 +18,6 @@ class LoginForm extends React.Component {
   }
 
   handleChange(event) {
-    console.log(event);
     const target = event.target;
     const value = target.value;
     const name = target.name;
@@ -24,16 +28,34 @@ class LoginForm extends React.Component {
   }
 
   handleSubmit(event) {
-    console.log('Login');
+    const me = this;
     event.preventDefault();
-    console.log('Name' + this.state.UserName);
-    console.log('Password' + this.state.Password);
-    this.setState({
-      SuccessfulMsg: 'Hooray Hooray !',
-    });
-    this.setState({
-      ErrorMsg: 'No No !',
-    });
+    const dataToSend = {
+      username: this.state.UserName,
+      password: this.state.Password,
+    };
+    const url = hostUrlForRequests + 'logIn';
+    const callback = function(body) {
+      const parsedBody = JSON.parse(body);
+      setToken(parsedBody.Token).then(() => {
+        const userInfoUrl = hostUrlForRequests + 'info';
+        getRequest(userInfoUrl, (userInfo) => {
+          if (parsedBody.Success) {
+            me.setState({
+              SuccessfulMsg: parsedBody.Success,
+              ErrorMsg: '',
+            });
+          } else if (parsedBody.Error) {
+            me.setState({
+              ErrorMsg: parsedBody.Error,
+              SuccessfulMsg: '',
+            });
+          }
+          ipcRenderer.send('onLogin', userInfo);
+        });
+      });
+    };
+    postRequest(dataToSend, url, callback);
   }
 
   render() {
@@ -60,24 +82,6 @@ class LoginForm extends React.Component {
     </div>
     );
   }
-} 
-
-function SuccessfullAlert(props) {
-  if (!props.successfulMsg) {
-    return null;
-  }
-  return (<div className="alert alert-success" role="alert">
-    {props.successfulMsg}
-  </div>);
-}
-
-function ErrorAlert(props) {
-  if (!props.errorMsg) {
-    return null;
-  }
-  return (<div className="alert alert-danger" role="alert">
-    {props.errorMsg} 
-  </div>);
 }
 
 module.exports = {
