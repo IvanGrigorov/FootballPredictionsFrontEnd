@@ -2,6 +2,8 @@ import React from 'react';
 
 const { ipcRenderer } = require('electron');
 
+const { Loading } = require('./../staticComponents/staticComponents');
+
 
 class GameItem extends React.Component {
   
@@ -39,16 +41,15 @@ class GameItem extends React.Component {
 class GamesList extends React.Component {
   constructor() {
     super();
-    this.state = { games: [] };
+    this.state = { games: [], loading: true, loaded: false };
     this.changeViewState = this.changeViewState.bind(this);
   }
 
   componentDidMount() {
     const self = this;
     ipcRenderer.on('sendAllGamesInfo', (event, data) => {
-      console.log(JSON.stringify(data));
-      console.log('Message received');
-      self.changeViewState({ games: data });
+      self.changeViewState({ games: data, loading: false, loaded: true });
+      setTimeout(() => { self.changeViewState({ loaded: false }); }, 2000);
     });
   }
 
@@ -61,6 +62,7 @@ class GamesList extends React.Component {
       return (
         <div className="alert alert-primary" role="alert">
           No Games Created
+          <Loading loaded={this.state.loaded} loading={this.state.loading} />
         </div>
       );
     }
@@ -71,6 +73,7 @@ class GamesList extends React.Component {
             return <GameItem gameName={game.name} gameId={game.id} key={game.id} />;
           })}
         </div>
+        <Loading loaded={this.state.loaded} loading={this.state.loading} />
       </div>
     );
   }

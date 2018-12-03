@@ -14,3 +14,8 @@
 .gameCard {
     margin: 10px;
 }
+
+.loadingInfo {
+    position: fixed;
+    bottom: 0px;
+}
