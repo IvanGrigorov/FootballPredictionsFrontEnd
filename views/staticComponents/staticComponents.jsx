@@ -23,4 +23,22 @@ module.exports = {
       {props.errorMsg}
     </div>);
   },
+  Loading: (props) => {
+    console.log(props);
+    if (props.loading) {
+      return (
+        <div className="alert alert-warning loadingInfo" role="alert">
+          Loading...
+        </div>
+      );
+    }
+    else if (props.loaded) {
+      return (
+        <div className="alert alert-success loadingInfo" role="alert">
+          Loaded !
+        </div>
+      );
+    }
+    return null;
+  },
 };

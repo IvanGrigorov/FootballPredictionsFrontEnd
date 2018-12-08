@@ -1,7 +1,21 @@
+#App {
+    overflow: scroll;
+    height: 100vh;
+}
+
 .homeInfo {
     margin-top: 10px;
 }
 
 .btn.btn-danger {
     float: right;
+}
+
+.gameCard {
+    margin: 10px;
+}
+
+.loadingInfo {
+    position: fixed;
+    bottom: 0px;
 }

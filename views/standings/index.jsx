@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const { ipcRenderer } = require('electron');
-
 
 const StandingsListItem = props => (
   <div className="list-group">
     <button type="button" className="list-group-item list-group-item-action">
-      <span>{props.standing.name}</span> <span>{props.standing.Points}</span>
+      <span>{props.standing.name}</span> <span style={{ float: 'right' }}>{props.standing.Points}</span>
     </button>
   </div>
 );
@@ -17,19 +15,10 @@ StandingsListItem.propTypes = {
 };
 
 class StandingsList extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
-    this.state = { standings: [] };
+    this.state = { standings: props.standings };
     this.changeViewState = this.changeViewState.bind(this);
-  }
-
-  componentDidMount() {
-    const self = this;
-    ipcRenderer.on('sendStandingsData', (event, data) => {
-      console.log(JSON.stringify(data));
-      console.log('Message received');
-      self.changeViewState({ standings: data });
-    });
   }
 
   changeViewState(viewState) {
@@ -37,10 +26,14 @@ class StandingsList extends React.Component {
   }
 
   render() {
+    let standingsId = 0;
     return (
       <div className="list-group">
-        {this.state.standings.map(standing =>
-          <StandingsListItem standing={standing} key={standing.name} />)}
+        <StandingsListItem standing={{ name: 'Name', Points: 'Points' }} key={standingsId} />
+        {this.state.standings.map((standing) => {
+          standingsId += 1;
+          return <StandingsListItem standing={standing} key={standingsId} />
+        })}
       </div>
     );
   }

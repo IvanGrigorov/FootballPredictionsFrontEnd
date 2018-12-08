@@ -6,6 +6,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const logInButton = document.querySelector('#logInButton');
     const standingsButton = document.querySelector('#standingsButton');
+    const gamesButton = document.querySelector('#gamesButton');
+
 
 
     logInButton.addEventListener('click', () => {
@@ -14,6 +16,10 @@ window.addEventListener('DOMContentLoaded', () => {
     
     standingsButton.addEventListener('click', () => {
         ipcRenderer.send('showStandings');
+    });
+
+    gamesButton.addEventListener('click', () => {
+        ipcRenderer.send('showGames');
     });
 });
 
