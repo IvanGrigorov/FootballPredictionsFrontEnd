@@ -11,7 +11,7 @@ module.exports = {
     if (!props.successfulMsg) {
       return null;
     }
-    return (<div className="alert alert-success" role="alert">
+    return (<div className="alert alert-success loadingInfo" role="alert">
       {props.successfulMsg}
     </div>);
   },
@@ -19,7 +19,7 @@ module.exports = {
     if (!props.errorMsg) {
       return null;
     }
-    return (<div className="alert alert-danger" role="alert">
+    return (<div className="alert alert-danger loadingInfo" role="alert">
       {props.errorMsg}
     </div>);
   },

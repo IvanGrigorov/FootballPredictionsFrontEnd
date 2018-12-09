@@ -3,7 +3,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 import { enableLiveReload } from 'electron-compile';
 
 //let request = require('ajax-request');
-const { getRequest } = require('./../tools/ajax');
+const { getRequest, postRequest } = require('./../tools/ajax');
 const { hostUrlForRequests, getToken } = require('./../tools/settings');
 const url = require('url');
 const path = require('path');
@@ -12,6 +12,7 @@ const path = require('path');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let gameWin;
+let roundsWin;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -162,7 +163,7 @@ ipcMain.on('showGames', () => {
 
 
 // //////////////////////////////////////////////////////
-// Load game data and open GAME Window ////
+// Load game data and open GAME Window //////////////////
 // //////////////////////////////////////////////////////
 
 ipcMain.on('openGameDetails', (event, data) => {
@@ -182,6 +183,47 @@ ipcMain.on('openGameDetails', (event, data) => {
   });
 });
 
+// //////////////////////////////////////////////////////
+// Load game data and open ROUNDS Window //////////////////
+// //////////////////////////////////////////////////////
+
+ipcMain.on('openRoundDetails', (event, data) => {
+  global.CurrentSelectedGame = data;
+  roundsWin = new BrowserWindow({ width: 800, height: 600 });
+  roundsWin.setResizable(false);
+  roundsWin.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/roundDetails/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+
+  roundsWin.on('closed', () => {
+    roundsWin = null;
+  });
+});
+
+
+// //////////////////////////////////////////////////////
+// Join Game after click  ///////////////////////////////
+// //////////////////////////////////////////////////////
+
+ipcMain.on('joinGame', (event, data) => {
+  global.CurrentSelectedGame = data;
+  const urlForAddingUserToGame = hostUrlForRequests + global.CurrentSelectedGame.gameId + '/user/insert';
+  if (!global.UserInfo) {
+    mainWindow.webContents.send('joinGameFailiure', 'You are not logged');
+  } else {
+    console.log(global.UserInfo);
+    postRequest({ userId: global.UserInfo.Msg.id }, urlForAddingUserToGame, (body) => {
+      //console.log(body);
+      const parsedBody = JSON.parse(body);
+      mainWindow.webContents.send('joinGameSuccess', parsedBody.Msg);
+    });
+  }
+});
+
 
 // //////////////////////////////////////////
 // //////////////////////////////////////////
@@ -196,6 +238,7 @@ ipcMain.on('openGameDetails', (event, data) => {
 
 ipcMain.on('onLogin', (event, data) => {
   const userInfo = JSON.parse(data);
+  global.UserInfo = userInfo;
   mainWindow.webContents.send('recieveUserInfo', userInfo);
 });
 
@@ -216,5 +259,55 @@ ipcMain.on('getGameStandings', () => {
   getRequest(urlForGettingStandingsForGame, (body) => {
     const parsedBody = JSON.parse(body);
     gameWin.webContents.send('sendStandings', { standings: parsedBody.Msg, gameId: global.CurrentSelectedGame.gameId });
+  });
+});
+
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// Ipc Communication for ROUND VIEW /////////
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+
+
+// //////////////////////////////////////////
+// Load rounds in Round Window //////////////
+// //////////////////////////////////////////
+
+ipcMain.on('getRoundRealResults', () => {
+  const urlForGettingRoundsForGame = hostUrlForRequests + global.CurrentSelectedGame.gameId + '/rounds';
+  getRequest(urlForGettingRoundsForGame, (body) => {
+    const parsedBody = JSON.parse(body);
+    const roundCollection = parsedBody.Msg;
+    const promiseCollection = [];
+    const preparedRoundData = [];
+    for (let i = 0; i < roundCollection.length; i++) {
+      promiseCollection.push(
+        new Promise((resolve, reject) => {
+          const urlForGettingRoundRealResilts = hostUrlForRequests + roundCollection[i].id + '/results/real';
+          getRequest(urlForGettingRoundRealResilts, (roundBody) => {
+            const parsedRoundInfoBody = JSON.parse(roundBody);
+            const roundInfoCollection = parsedRoundInfoBody.Msg;
+            const preparedRoundTeamsData = [];
+            for (let j = 0; j < roundInfoCollection.length; j++) {
+              preparedRoundTeamsData.push({
+                HostTeam: roundInfoCollection[j].HostTeam,
+                Host: roundInfoCollection[j].Host,
+                Guest: roundInfoCollection[j].Guest,
+                GuestTeam: roundInfoCollection[j].GuestTeam,
+              });
+            }
+            preparedRoundData.push({
+              id: roundCollection[i].id,
+              realResults: preparedRoundTeamsData,
+            });
+            resolve();
+          });
+        }),
+      );
+    }
+    Promise.all(promiseCollection).then(() => {
+      roundsWin.webContents.send('recieveRoundRealResults', preparedRoundData);
+    });
   });
 });
