@@ -94,7 +94,7 @@ const UserInfo = (props) => {
     return null;
   }
   return (
-    <div className="alert alert-primary" role="alert">
+    <div style={{ height: 70 }} className="alert alert-primary" role="alert">
       Name: {props.userName} Role: {props.role}
       <button type="button" className="btn btn-danger" onClick={() => { props.handleLogOutClick(); }}>
         Log Out

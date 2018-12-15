@@ -19,3 +19,7 @@
     position: fixed;
     bottom: 0px;
 }
+
+.btn-primary {
+    margin: 5px;
+}

@@ -75,6 +75,9 @@ class GameSettings extends React.Component {
           </div>
           <input type="submit" className="btn btn-primary" value="Set" />
         </form>
+        <div className="alert alert-secondary" role="alert">
+          You have to be admin to modify this
+        </div>
         <SuccessfullAlert successfulMsg={this.state.SuccessfulMsg} />
         <ErrorAlert errorMsg={this.state.ErrorMsg} />
       </div>
