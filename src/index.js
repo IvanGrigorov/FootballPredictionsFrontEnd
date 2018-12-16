@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
-//let request = require('ajax-request');
+// let request = require('ajax-request');
 const { getRequest, postRequest } = require('./../tools/ajax');
 const { hostUrlForRequests, getToken } = require('./../tools/settings');
 const url = require('url');
@@ -13,6 +13,8 @@ const path = require('path');
 let mainWindow;
 let gameWin;
 let roundsWin;
+let createRoundsWindow;
+let loginWin;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -112,7 +114,7 @@ app.on('activate', () => {
 // ////////////////////////
 
 ipcMain.on('loginViewInitiate', () => {
-  let loginWin = new BrowserWindow({ width: 300, height: 400 });
+  loginWin = new BrowserWindow({ width: 300, height: 400 });
   loginWin.setResizable(false);
   loginWin.loadURL(
       url.format({
@@ -183,9 +185,9 @@ ipcMain.on('openGameDetails', (event, data) => {
   });
 });
 
-// //////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////
 // Load game data and open ROUNDS Window //////////////////
-// //////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////
 
 ipcMain.on('openRoundDetails', (event, data) => {
   global.CurrentSelectedGame = data;
@@ -224,6 +226,15 @@ ipcMain.on('joinGame', (event, data) => {
   }
 });
 
+
+// ////////////////////////////////////////////
+// REFRESH App  ///////////////////////////////
+// ////////////////////////////////////////////
+
+ipcMain.on('refresh', () => {
+  app.relaunch();
+  app.exit();
+});
 
 // //////////////////////////////////////////
 // //////////////////////////////////////////
@@ -299,15 +310,39 @@ ipcMain.on('getRoundRealResults', () => {
             }
             preparedRoundData.push({
               id: roundCollection[i].id,
+              roundNumber: roundCollection[i].RoundNumber,
               realResults: preparedRoundTeamsData,
             });
+            global.CurrentSelectedGame.roundNumber = preparedRoundData.length;
             resolve();
           });
         }),
       );
     }
     Promise.all(promiseCollection).then(() => {
+      preparedRoundData.sort((a, b) => {
+        return a.roundNumber - b.roundNumber;
+      });
       roundsWin.webContents.send('recieveRoundRealResults', preparedRoundData);
     });
+  });
+});
+
+// //////////////////////////////////////////
+// Open CreateNewRound Window ///////////////
+// //////////////////////////////////////////
+
+ipcMain.on('openCreateNewRoundWindow', () => {
+  createRoundsWindow = new BrowserWindow({ width: 500, height: 600 });
+  createRoundsWindow.setResizable(false);
+  createRoundsWindow.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/createRound/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+  createRoundsWindow.on('closed', () => {
+    createRoundsWindow = null;
   });
 });
