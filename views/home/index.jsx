@@ -29,12 +29,23 @@ const NavBar = (props) => (
     <li className="nav-item">
       <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Games' })} id="gamesButton">Games</a>
     </li>
+    <li className="nav-item">
+      <a className="nav-link" href="#" onClick={() => props.refreshHandler()} id="gamesButton">Refresh</a>
+    </li>
   </ul>
 );
 
 const HomeInfo = () => (
-  <div className="alert alert-success homeInfo" role="alert">
+  <div>
+    <div className="alert alert-success homeInfo" role="alert">
       Home view
+    </div>
+    <div className="jumbotron">
+      <h1 className="display-4">Hello, players!</h1>
+      <p className="lead">This is the first version of the game for predicting the scores of different sport tournaments, created by you and for you!</p>
+      <hr className="my-4" />
+      <p>For any issues, problems, suggestions or any other ophinions about the game, you can contact me on email: <strong><em>ivangrigorov9@gmail.com </em></strong></p>
+    </div>
   </div>
 );
 
@@ -75,11 +86,15 @@ class Main extends React.Component {
     });
   }
 
+  handleRefreshClick() {
+    ipcRenderer.send('refresh');
+  }
+
   render() {
     return (
       <div className="container">
         <UserInfo userName={this.state.userName} role={this.state.role} handleLogOutClick={this.handleLogOutClick} />
-        <NavBar handler={this.changeViewState} />
+        <NavBar refreshHandler={this.handleRefreshClick} handler={this.changeViewState} />
         {(this.state.View === 'Standings') ? <StandingsList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Predictions') ? <PredictionList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Home') ? <HomeInfo /> : null}
