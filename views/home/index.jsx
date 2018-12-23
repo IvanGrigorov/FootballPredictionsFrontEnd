@@ -3,7 +3,8 @@ import React from 'react';
 const { Header } = require('./../staticComponents/staticComponents');
 const { PredictionList } = require('./../predictions/index');
 const { StandingsList } = require('./../standings/index');
-const { GamesList } = require('./../games/index');
+const { GamePage } = require('./../gamePage/index');
+
 
 
 
@@ -98,7 +99,7 @@ class Main extends React.Component {
         {(this.state.View === 'Standings') ? <StandingsList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Predictions') ? <PredictionList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Home') ? <HomeInfo /> : null}
-        {(this.state.View === 'Games') ? <GamesList /> : null}
+        {(this.state.View === 'Games') ? <GamePage /> : null}
       </div>
     );
   }
