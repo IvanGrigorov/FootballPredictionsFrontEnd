@@ -1,4 +1,5 @@
 import React from 'react';
+import { ipcRenderer } from 'electron';
 
 
 class RoundListItem extends React.Component {
@@ -7,6 +8,16 @@ class RoundListItem extends React.Component {
     this.state = {
       round: props.round
     };
+    this.openPredictions = this.openPredictions.bind(this);
+    this.openRoundStandings = this.openRoundStandings.bind(this);
+  }
+
+  openPredictions() {
+    ipcRenderer.send('openPredictions', this.state.round.id);
+  };
+
+  openRoundStandings() {
+    console.log('Show standings', this.state.round.id);
   }
 
   render() {
@@ -22,7 +33,9 @@ class RoundListItem extends React.Component {
             <p className="mb-1" key={key}>{result.HostTeam} {result.Host}:{result.Guest} {result.GuestTeam}</p>
           );
         })}
-        <small>Click for details</small>
+        <a href="#" className="btn btn-primary" onClick={() => { this.openPredictions(); }}>Predictions</a>
+        <a href="#" className="btn btn-primary" onClick={() => { this.openRoundStandings(); }}>Round Standings</a>
+        <a href="#" className="btn btn-primary" onClick={() => { this.openGenerateStandingsOptions(); }}>Generate</a>
       </a>
     );
   }

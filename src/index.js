@@ -15,6 +15,8 @@ let gameWin;
 let roundsWin;
 let createRoundsWindow;
 let loginWin;
+let predictionsWin;
+
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -206,6 +208,27 @@ ipcMain.on('openRoundDetails', (event, data) => {
   });
 });
 
+// ////////////////////////////////////////////////////////
+// Load game data and open PREDICTIONS Window /////////////
+// ////////////////////////////////////////////////////////
+
+ipcMain.on('openPredictions', (event, data) => {
+  global.CurrentSelectedRound = data;
+  predictionsWin = new BrowserWindow({ width: 800, height: 600 });
+  predictionsWin.setResizable(false);
+  predictionsWin.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/predictionsDetails/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+
+  predictionsWin.on('closed', () => {
+    predictionsWin = null;
+  });
+});
+
 
 // //////////////////////////////////////////////////////
 // Join Game after click  ///////////////////////////////
@@ -344,5 +367,36 @@ ipcMain.on('openCreateNewRoundWindow', () => {
 
   createRoundsWindow.on('closed', () => {
     createRoundsWindow = null;
+  });
+});
+
+
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+// Ipc Communication for PREDICTIONS VIEW ///
+// //////////////////////////////////////////
+// //////////////////////////////////////////
+
+// /////////////////////////////////////////////////
+// Load predictions if any in Predictions Window ///
+// /////////////////////////////////////////////////
+
+ipcMain.on('getPredictionsIfAny', () => {
+  const urlToGetPredictions = hostUrlForRequests + global.UserInfo.Msg.id + '/' + global.CurrentSelectedRound + '/predictions';
+  getRequest(urlToGetPredictions, (body) => {
+    const parsedBody = JSON.parse(body);
+    predictionsWin.webContents.send('loadedPredictions', parsedBody.Msg);
+  });
+});
+
+// //////////////////////////////////////////
+// Load round teams in Predictions Window ///
+// //////////////////////////////////////////
+
+ipcMain.on('getPredictionsIfAny', () => {
+  const urlToGetPredictions = hostUrlForRequests + global.CurrentSelectedRound + '/teams';
+  getRequest(urlToGetPredictions, (body) => {
+    const parsedBody = JSON.parse(body);
+    predictionsWin.webContents.send('loadedRoundTeams', parsedBody.Msg);
   });
 });
