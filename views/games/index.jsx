@@ -25,10 +25,6 @@ class GameItem extends React.Component {
     ipcRenderer.send('openRoundDetails', this.state);
   }
 
-  openPredictions() {
-    ipcRenderer.send('openPredictions', this.state);
-  }
-
   joinGame() {
     this.props.setLoading();
     ipcRenderer.send('joinGame', this.state);
@@ -43,7 +39,6 @@ class GameItem extends React.Component {
             <a href="#" className="btn btn-primary" onClick={() => { this.openGameDetails(); }}>Show info</a>
             <a href="#" className="btn btn-primary" onClick={() => { this.joinGame(); }}>Join Game</a>
             <a href="#" className="btn btn-primary" onClick={() => { this.openRoundDetails(); }}>Rounds</a>
-            <a href="#" className="btn btn-primary" onClick={() => { this.openPredictions(); }}>Predictions</a>
           </div>
         </div>
       </div>
