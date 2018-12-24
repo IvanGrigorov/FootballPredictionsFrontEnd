@@ -14,10 +14,14 @@ class RoundListItem extends React.Component {
 
   openPredictions() {
     ipcRenderer.send('openPredictions', this.state.round.id);
-  };
+  }
 
   openRoundStandings() {
-    console.log('Show standings', this.state.round.id);
+    ipcRenderer.send('openRoundStandings', this.state.round.id);
+  }
+
+  openGenerateStandingsOptions() {
+    ipcRenderer.send('openGenerateStandings', this.state.round.id);
   }
 
   render() {

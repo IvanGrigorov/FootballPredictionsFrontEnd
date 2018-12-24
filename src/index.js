@@ -16,6 +16,7 @@ let roundsWin;
 let createRoundsWindow;
 let loginWin;
 let predictionsWin;
+let roundStandings;
 
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
@@ -367,6 +368,27 @@ ipcMain.on('openCreateNewRoundWindow', () => {
 
   createRoundsWindow.on('closed', () => {
     createRoundsWindow = null;
+  });
+});
+
+// ////////////////////////////////////////////////////////
+// Open ROUND STANDINGS Window /////////////
+// ////////////////////////////////////////////////////////
+
+ipcMain.on('openRoundStandings', (event, data) => {
+  global.CurrentSelectedRound = data;
+  roundStandings = new BrowserWindow({ width: 800, height: 600 });
+  roundStandings.setResizable(false);
+  roundStandings.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/roundStandings/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+
+  roundStandings.on('closed', () => {
+    roundStandings = null;
   });
 });
 

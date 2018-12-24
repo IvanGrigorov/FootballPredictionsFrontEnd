@@ -130,7 +130,7 @@ class Predictions extends React.Component {
   render() {
     if (this.state.loading) {
       return (
-        <div className="container">  
+        <div className="container">
           <div className="alert alert-warning" role="alert">
             Getting predictions Info...
           </div>
