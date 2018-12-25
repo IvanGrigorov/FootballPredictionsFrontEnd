@@ -24,6 +24,7 @@ class Rounds extends React.Component {
 
   componentWillMount() {
     const self = this;
+    ipcRenderer.send('getRoundRealResults');
     ipcRenderer.on('recieveRoundRealResults', (event, data) => {
       self.setState({ rounds: data });
       self.setState({ loaded: true, loading: false });

@@ -17,6 +17,7 @@ let createRoundsWindow;
 let loginWin;
 let predictionsWin;
 let roundStandings;
+let generateStandingsWin;
 
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
@@ -392,6 +393,27 @@ ipcMain.on('openRoundStandings', (event, data) => {
   });
 });
 
+// ////////////////////////////////////////////////////////
+// Open GENERATE STANDINGS Window /////////////
+// ////////////////////////////////////////////////////////
+
+ipcMain.on('openGenerateStandings', (event, data) => {
+  global.CurrentSelectedRound = data;
+  generateStandingsWin = new BrowserWindow({ width: 800, height: 600 });
+  generateStandingsWin.setResizable(false);
+  generateStandingsWin.loadURL(
+      url.format({
+        pathname: path.join(__dirname, '../views/standingsGeneration/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }));
+
+
+  generateStandingsWin.on('closed', () => {
+    generateStandingsWin = null;
+  });
+});
+
 
 // //////////////////////////////////////////
 // //////////////////////////////////////////
@@ -415,10 +437,47 @@ ipcMain.on('getPredictionsIfAny', () => {
 // Load round teams in Predictions Window ///
 // //////////////////////////////////////////
 
-ipcMain.on('getPredictionsIfAny', () => {
+ipcMain.on('getRoundTeams', () => {
   const urlToGetPredictions = hostUrlForRequests + global.CurrentSelectedRound + '/teams';
   getRequest(urlToGetPredictions, (body) => {
     const parsedBody = JSON.parse(body);
     predictionsWin.webContents.send('loadedRoundTeams', parsedBody.Msg);
+  });
+});
+
+
+// //////////////////////////////////////////////
+// //////////////////////////////////////////////
+// Ipc Communication for ROUND STANDINGS VIEW ///
+// //////////////////////////////////////////////
+// //////////////////////////////////////////////
+
+// //////////////////////////////////////////////////////
+// Load standings for round in ROUND STANDINGS Window ///
+// //////////////////////////////////////////////////////
+
+ipcMain.on('getRoundStandings', () => {
+  const urlToGetRoundStandings = hostUrlForRequests + global.CurrentSelectedRound + '/standings';
+  getRequest(urlToGetRoundStandings, (body) => {
+    const parsedBody = JSON.parse(body);
+    roundStandings.webContents.send('loadedRoundStandings', parsedBody.Msg);
+  });
+});
+
+// ///////////////////////////////////////////////////
+// ///////////////////////////////////////////////////
+// Ipc Communication for STANDINGS GENERATION VIEW ///
+// ///////////////////////////////////////////////////
+// ///////////////////////////////////////////////////
+
+// //////////////////////////////////////////////////////////////
+// Load teams for real results in STANDINGS GENERATION Window ///
+// //////////////////////////////////////////////////////////////
+
+ipcMain.on('getRoundTeamsInGenerationStandingsView', () => {
+  const urlToGetRoundStandings = hostUrlForRequests + global.CurrentSelectedRound + '/teams';
+  getRequest(urlToGetRoundStandings, (body) => {
+    const parsedBody = JSON.parse(body);
+    generateStandingsWin.webContents.send('loadedRoundTeamsInGenerationStandingsView', parsedBody.Msg);
   });
 });

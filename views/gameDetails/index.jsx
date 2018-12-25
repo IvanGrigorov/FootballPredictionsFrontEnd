@@ -22,6 +22,7 @@ class Game extends React.Component {
 
   componentWillMount() {
     const me = this;
+    ipcRenderer.send('getGameStandings');
     ipcRenderer.on('sendStandings', (event, data) => {
       me.changeViewState({ Standings: data.standings, GameId: data.gameId, loading: false, loaded: true });
       setTimeout(() => { me.changeViewState({ loaded: false }); }, 2000);

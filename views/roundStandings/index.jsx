@@ -1,4 +1,5 @@
 import React from 'react';
+import { ipcRenderer } from 'electron';
 
 const { Loading } = require('./../staticComponents/staticComponents');
 const { getRequest } = require('./../../tools/ajax');
@@ -20,11 +21,9 @@ class RoundStandings extends React.Component {
 
   componentWillMount() {
     const me = this;
-    const currentRoundId = remote.getGlobal('CurrentSelectedRound');
-    const urlToGetRoundStandings = hostUrlForRequests + currentRoundId + '/standings';
-    getRequest(urlToGetRoundStandings, (body) => {
-      const parsedBody = JSON.parse(body);
-      const predparedData = me.prepareDataToDisplay(parsedBody.Msg);
+    ipcRenderer.send('getRoundStandings');
+    ipcRenderer.on('loadedRoundStandings', (event, data) => {
+      const predparedData = me.prepareDataToDisplay(data);
       me.setState({
         standings: predparedData,
         loading: false,
