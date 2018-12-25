@@ -21,14 +21,22 @@ const NavBar = (props) => (
     <li className="nav-item">
       <a className="nav-link" href="#" id="logInButton">Login</a>
     </li>
+    {/*
     <li className="nav-item">
       <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Predictions' })} id="predictionsButton">Predictions</a>
     </li>
     <li className="nav-item">
       <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Standings' })} id="standingsButton">Standings</a>
     </li>
+    */}
     <li className="nav-item">
-      <a className="nav-link" href="#" onClick={() => props.handler({ View: 'Games' })} id="gamesButton">Games</a>
+      <a className="nav-link" href="#" onClick={() => {
+        if (props.isGamesDisabled) {
+          alert('You are not logged');
+          return;
+        }
+        props.handler({ View: 'Games' });
+      }} id="gamesButton">Games</a>
     </li>
     <li className="nav-item">
       <a className="nav-link" href="#" onClick={() => props.refreshHandler()} id="gamesButton">Refresh</a>
@@ -53,7 +61,7 @@ const HomeInfo = () => (
 class Main extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { View: 'Home', userName: '', role: '' };
+    this.state = { View: 'Home', userName: '', role: '', isGamesDisabled: true };
     this.changeViewState = this.changeViewState.bind(this);
     this.handleLogOutClick = this.handleLogOutClick.bind(this);
     this.clearUserViewState = this.clearUserViewState.bind(this);
@@ -62,7 +70,7 @@ class Main extends React.Component {
   componentDidMount() {
     const self = this;
     ipcRenderer.on('recieveUserInfo', (event, data) => {
-      self.changeViewState({ userName: data.Msg.name, role: data.Msg.role });
+      self.changeViewState({ userName: data.Msg.name, role: data.Msg.role, isGamesDisabled: false });
     });
   }
 
@@ -74,6 +82,7 @@ class Main extends React.Component {
     this.setState({
       userName: '',
       role: '',
+      isGamesDisabled: true,
     });
   }
 
@@ -95,7 +104,7 @@ class Main extends React.Component {
     return (
       <div className="container">
         <UserInfo userName={this.state.userName} role={this.state.role} handleLogOutClick={this.handleLogOutClick} />
-        <NavBar refreshHandler={this.handleRefreshClick} handler={this.changeViewState} />
+        <NavBar isGamesDisabled={this.state.isGamesDisabled} refreshHandler={this.handleRefreshClick} handler={this.changeViewState} />
         {(this.state.View === 'Standings') ? <StandingsList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Predictions') ? <PredictionList predictions={[{ title: 'Test1' }, { title: 'Test2' }]} /> : null}
         {(this.state.View === 'Home') ? <HomeInfo /> : null}

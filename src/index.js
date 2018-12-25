@@ -8,6 +8,32 @@ const { hostUrlForRequests, getToken } = require('./../tools/settings');
 const url = require('url');
 const path = require('path');
 
+
+// /////////////////////////////////////////////////////////////////////////
+
+// Helpful functions (can be moved in separate file)
+
+function checkForSelectedGameData() {
+  if (!global.CurrentSelectedGame) {
+    throw new Error('Game is not selected');
+  }
+}
+
+function checkForSelectedGameDataAndId() {
+  checkForSelectedGameData();
+  if (!global.CurrentSelectedGame.gameId) {
+    throw new Error('Game ID is not selected');
+  }
+}
+
+function checkForSelectedRound() {
+  if (!global.CurrentSelectedRound) {
+    throw new Error('Round is not selected');
+  }
+}
+
+// /////////////////////////////////////////////////////////////////////////
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -291,6 +317,7 @@ ipcMain.on('onLogin', (event, data) => {
 // //////////////////////////////////////////
 
 ipcMain.on('getGameStandings', () => {
+  checkForSelectedGameDataAndId();
   const urlForGettingStandingsForGame = hostUrlForRequests + global.CurrentSelectedGame.gameId + '/general/standings';
   getRequest(urlForGettingStandingsForGame, (body) => {
     const parsedBody = JSON.parse(body);
@@ -311,6 +338,7 @@ ipcMain.on('getGameStandings', () => {
 // //////////////////////////////////////////
 
 ipcMain.on('getRoundRealResults', () => {
+  checkForSelectedGameDataAndId();
   const urlForGettingRoundsForGame = hostUrlForRequests + global.CurrentSelectedGame.gameId + '/rounds';
   getRequest(urlForGettingRoundsForGame, (body) => {
     const parsedBody = JSON.parse(body);
@@ -426,6 +454,7 @@ ipcMain.on('openGenerateStandings', (event, data) => {
 // /////////////////////////////////////////////////
 
 ipcMain.on('getPredictionsIfAny', () => {
+  checkForSelectedRound();
   const urlToGetPredictions = hostUrlForRequests + global.UserInfo.Msg.id + '/' + global.CurrentSelectedRound + '/predictions';
   getRequest(urlToGetPredictions, (body) => {
     const parsedBody = JSON.parse(body);
@@ -438,6 +467,7 @@ ipcMain.on('getPredictionsIfAny', () => {
 // //////////////////////////////////////////
 
 ipcMain.on('getRoundTeams', () => {
+  checkForSelectedRound();
   const urlToGetPredictions = hostUrlForRequests + global.CurrentSelectedRound + '/teams';
   getRequest(urlToGetPredictions, (body) => {
     const parsedBody = JSON.parse(body);
@@ -457,6 +487,7 @@ ipcMain.on('getRoundTeams', () => {
 // //////////////////////////////////////////////////////
 
 ipcMain.on('getRoundStandings', () => {
+  checkForSelectedRound();
   const urlToGetRoundStandings = hostUrlForRequests + global.CurrentSelectedRound + '/standings';
   getRequest(urlToGetRoundStandings, (body) => {
     const parsedBody = JSON.parse(body);
@@ -475,9 +506,11 @@ ipcMain.on('getRoundStandings', () => {
 // //////////////////////////////////////////////////////////////
 
 ipcMain.on('getRoundTeamsInGenerationStandingsView', () => {
+  checkForSelectedRound();
   const urlToGetRoundStandings = hostUrlForRequests + global.CurrentSelectedRound + '/teams';
   getRequest(urlToGetRoundStandings, (body) => {
     const parsedBody = JSON.parse(body);
     generateStandingsWin.webContents.send('loadedRoundTeamsInGenerationStandingsView', parsedBody.Msg);
   });
 });
+

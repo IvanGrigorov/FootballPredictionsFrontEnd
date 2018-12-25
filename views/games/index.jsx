@@ -52,7 +52,14 @@ class GamesList extends React.Component {
     this.state = { games: [], loading: true, loaded: false };
     this.changeViewState = this.changeViewState.bind(this);
     this.setLoading = this.setLoading.bind(this);
+    this.clearListeners = this.clearListeners.bind(this);
+    this.componentWillUnmount = this.componentWillUnmount.bind(this);
+  }
 
+  clearListeners() {
+    ipcRenderer.removeAllListeners('sendAllGamesInfo');
+    ipcRenderer.removeAllListeners('joinGameFailiure');
+    ipcRenderer.removeAllListeners('joinGameSuccess');
   }
 
 
@@ -78,6 +85,10 @@ class GamesList extends React.Component {
       });
       self.clearMessages();
     });
+  }
+
+  componentWillUnmount() {
+    this.clearListeners();
   }
 
   setLoading() {
