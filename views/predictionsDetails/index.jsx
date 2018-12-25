@@ -109,7 +109,7 @@ class Predictions extends React.Component {
     this.setState({ loading: true });
     const currentRoundId = remote.getGlobal('CurrentSelectedRound');
     const urlToGivePredictions = hostUrlForRequests + currentRoundId + '/predictions/insert';
-    const dataToSend = JSON.stringify(this.convertEdditedData());
+    const dataToSend = { predictions: JSON.stringify(this.convertEdditedData()) };
     postRequest(dataToSend, urlToGivePredictions, (body) => {
       const parsedBody = JSON.parse(body);
       if (parsedBody.Error) {
