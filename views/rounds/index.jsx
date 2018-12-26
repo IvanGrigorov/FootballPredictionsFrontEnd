@@ -1,5 +1,8 @@
 import React from 'react';
 import { ipcRenderer } from 'electron';
+const remote = require('electron').remote;
+const { ErrorAlert } = require('./../staticComponents/staticComponents');
+
 
 
 class RoundListItem extends React.Component {
@@ -10,6 +13,7 @@ class RoundListItem extends React.Component {
     };
     this.openPredictions = this.openPredictions.bind(this);
     this.openRoundStandings = this.openRoundStandings.bind(this);
+    this.openGenerateStandingsOptions = this.openGenerateStandingsOptions.bind(this);
   }
 
   openPredictions() {
@@ -21,6 +25,13 @@ class RoundListItem extends React.Component {
   }
 
   openGenerateStandingsOptions() {
+    if (!remote.getGlobal('UserInfo') ||
+     !(remote.getGlobal('UserInfo').Msg.role === 'ADMIN')) {
+      this.setState({
+        ErrorMsg: 'You are not admin !',
+      });
+      return;
+    }
     ipcRenderer.send('openGenerateStandings', this.state.round.id);
   }
 
@@ -40,6 +51,7 @@ class RoundListItem extends React.Component {
         <a href="#" className="btn btn-primary" onClick={() => { this.openPredictions(); }}>Predictions</a>
         <a href="#" className="btn btn-primary" onClick={() => { this.openRoundStandings(); }}>Round Standings</a>
         <a href="#" className="btn btn-primary" onClick={() => { this.openGenerateStandingsOptions(); }}>Generate</a>
+        <ErrorAlert errorMsg={this.state.ErrorMsg} />
       </a>
     );
   }

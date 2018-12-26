@@ -3,6 +3,7 @@ import React from 'react';
 const { SuccessfullAlert, ErrorAlert, Loading } = require('./../staticComponents/staticComponents');
 const { postRequest } = require('./../../tools/ajax');
 const { hostUrlForRequests } = require('./../../tools/settings');
+const remote = require('electron').remote;
 
 
 class CreateGame extends React.Component {
@@ -30,6 +31,14 @@ class CreateGame extends React.Component {
   handleSubmit(event) {
     const me = this;
     event.preventDefault();
+    if (!remote.getGlobal('UserInfo') ||
+      !(remote.getGlobal('UserInfo').Msg.role === 'ADMIN')) {
+      me.setState({
+        ErrorMsg: 'You are not admin !',
+        SuccessfulMsg: '',
+      });
+      return;
+    }
     this.setState({ loading: true });
     const dataToSend = {
       gameName: this.state.gameName,

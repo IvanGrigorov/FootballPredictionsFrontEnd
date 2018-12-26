@@ -155,6 +155,9 @@ class Predictions extends React.Component {
     } else if (this.state.predictionsToEdit.length) {
       return (
         <div className="container">
+          <div className="alert alert-warning" role="alert">
+            If you have not joined the game, you will not be part of standings !
+          </div>
           <form onSubmit={this.prepareSubmit}>
             <ul className="list-group">
               {this.state.predictionsToEdit.map((predictionToEdit) => {
