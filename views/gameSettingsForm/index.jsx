@@ -3,6 +3,8 @@ import React from 'react';
 const { SuccessfullAlert, ErrorAlert } = require('./../staticComponents/staticComponents');
 const { postRequest } = require('./../../tools/ajax');
 const { hostUrlForRequests } = require('./../../tools/settings');
+const remote = require('electron').remote;
+
 
 
 class GameSettings extends React.Component {
@@ -35,7 +37,17 @@ class GameSettings extends React.Component {
       PointsCorrectFixture: this.state.pointsRightFixture,
       PointsAmountOfGoals: 0,
     };
-    const url = hostUrlForRequests + this.state.gameId + '/point/settings/update';
+    let url = hostUrlForRequests + this.state.gameId + '/point/settings/update';
+
+    if (!this.state.gameId) {
+      const currentGameId = remote.getGlobal('CurrentSelectedGame').gameId;
+      this.setState({
+        gameId: currentGameId,
+      });
+      url = hostUrlForRequests + currentGameId + '/point/settings/update';
+    }
+    console.log(this.state);
+
     const preparedData = {
       pointSettingsInfo: JSON.stringify(dataToSend),
     }

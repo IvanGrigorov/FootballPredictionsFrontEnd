@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
@@ -45,6 +45,24 @@ let predictionsWin;
 let roundStandings;
 let generateStandingsWin;
 
+const menuTemplate = [
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Toggle developer tools',
+        click (item, focusedWindow) { focusedWindow.webContents.toggleDevTools(); },
+      },
+      {
+        label: 'Exit',
+        click () { app.exit(); },
+      },
+    ],
+  },
+];
+
+const menu = Menu.buildFromTemplate(menuTemplate);
+Menu.setApplicationMenu(menu);
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 

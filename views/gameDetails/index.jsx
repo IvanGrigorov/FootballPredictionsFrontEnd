@@ -36,9 +36,18 @@ class Game extends React.Component {
   render() {
     if (!this.state.Standings.length) {
       return (
-        <div className="alert alert-primary" role="alert">
-          No Standings Created
-          <Loading loaded={this.state.loaded} loading={this.state.loading} />
+        <div className="container">
+          <div className="row">
+            <div className="col-8">
+              <div className="alert alert-primary" role="alert">
+                No Standings Created
+                <Loading loaded={this.state.loaded} loading={this.state.loading} />
+              </div>
+            </div>
+            <div className="col-4">
+              <GameSettings gameId={this.state.GameId} />
+            </div>
+          </div>
         </div>
       );
     }
