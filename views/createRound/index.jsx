@@ -67,7 +67,7 @@ class NewRoundForm extends React.Component {
     const urlToCreateRound = hostUrlForRequests + 'round/create';
     const dataToSend = {
       gameName: currentGameName,
-      roundNumber: currentGameRoundNumber + 1,
+      roundNumber: (currentGameRoundNumber) ? currentGameRoundNumber + 1 : 1,
     };
     me.setState({ loading: true });
     postRequest(dataToSend, urlToCreateRound, (body) => {
