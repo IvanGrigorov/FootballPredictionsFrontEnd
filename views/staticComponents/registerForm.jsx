@@ -2,7 +2,7 @@ import React from 'react';
 
 const { postRequest } = require('./../../tools/ajax');
 const { hostUrlForRequests } = require('./../../tools/settings');
-const { SuccessfullAlert, ErrorAlert } = require('./staticComponents');
+const { SuccessfullAlert, ErrorAlert, Loading } = require('./staticComponents');
 
 
 //const 
@@ -12,6 +12,7 @@ class RegisterForm extends React.Component {
     this.state = {
       UserName: '',
       Password: '',
+      loading: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -30,6 +31,9 @@ class RegisterForm extends React.Component {
   handleSubmit(event) {
     const me = this;
     event.preventDefault();
+    me.setState({
+      loading: true,
+    });
     const dataToSend = {
       username: this.state.UserName,
       password: this.state.Password,
@@ -42,11 +46,13 @@ class RegisterForm extends React.Component {
         me.setState({
           SuccessfulMsg: parsedBody.Msg,
           ErrorMsg: '',
+          loading: false,
         });
       } else if (parsedBody.Error) {
         me.setState({
           ErrorMsg: parsedBody.Msg,
           SuccessfulMsg: '',
+          loading: false,
         });
       }
     };
@@ -72,6 +78,7 @@ class RegisterForm extends React.Component {
         </div>
         <input type="submit" className="btn btn-primary" value="Register" />
       </form>
+      <Loading loading={this.state.loading} loaded={false} />
       <SuccessfullAlert successfulMsg={this.state.SuccessfulMsg} />
       <ErrorAlert errorMsg={this.state.ErrorMsg} />
     </div>

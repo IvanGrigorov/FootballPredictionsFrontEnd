@@ -1,7 +1,7 @@
 import React from 'react';
 const { postRequest, getRequest } = require('./../../tools/ajax');
 const { setToken, hostUrlForRequests } = require('./../../tools/settings');
-const { SuccessfullAlert, ErrorAlert } = require('./staticComponents');
+const { SuccessfullAlert, ErrorAlert, Loading } = require('./staticComponents');
 const { ipcRenderer } = require('electron');
 
 
@@ -30,6 +30,9 @@ class LoginForm extends React.Component {
   handleSubmit(event) {
     const me = this;
     event.preventDefault();
+    me.setState({
+      loading: true,
+    });
     const dataToSend = {
       username: this.state.UserName,
       password: this.state.Password,
@@ -44,11 +47,13 @@ class LoginForm extends React.Component {
             me.setState({
               SuccessfulMsg: parsedBody.Success,
               ErrorMsg: '',
+              loading: false,
             });
           } else if (parsedBody.Error) {
             me.setState({
               ErrorMsg: parsedBody.Error,
               SuccessfulMsg: '',
+              loading: false,
             });
           }
           ipcRenderer.send('onLogin', userInfo);
@@ -79,6 +84,7 @@ class LoginForm extends React.Component {
       </form>
       <SuccessfullAlert successfulMsg={this.state.SuccessfulMsg} />
       <ErrorAlert errorMsg={this.state.ErrorMsg} />
+      <Loading loading={this.state.loading} loaded={false} />
     </div>
     );
   }
