@@ -64,6 +64,11 @@ class RoundsList extends React.Component {
     this.state = {
       rounds: props.rounds, 
     };
+    this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState(newProps);
   }
 
   render() {

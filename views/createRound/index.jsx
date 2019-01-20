@@ -3,6 +3,7 @@ import React from 'react';
 const { postRequest, getRequest } = require('./../../tools/ajax');
 const { hostUrlForRequests } = require('./../../tools/settings');
 const { SuccessfullAlert, Loading, ErrorAlert } = require('./../staticComponents/staticComponents');
+const { ipcRenderer } = require('electron');
 const remote = require('electron').remote;
 
 
@@ -94,6 +95,7 @@ class NewRoundForm extends React.Component {
           until: me.state.until,
         };
         postRequest(predictionsSettingsDataToSend, urlToAddPredictionSettings, (body) => {
+          ipcRenderer.send('getRoundRealResults');
           me.setState({
             loading: false,
             successfulMsg: 'Teams Inserted Successfully',

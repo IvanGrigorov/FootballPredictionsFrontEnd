@@ -3,6 +3,7 @@ import React from 'react';
 const { SuccessfullAlert, ErrorAlert, Loading } = require('./../staticComponents/staticComponents');
 const { postRequest } = require('./../../tools/ajax');
 const { hostUrlForRequests } = require('./../../tools/settings');
+const { ipcRenderer } = require('electron');
 const remote = require('electron').remote;
 
 
@@ -45,6 +46,7 @@ class CreateGame extends React.Component {
     };
     const urlToCreateGame = hostUrlForRequests + 'insertGame';
     postRequest(dataToSend, urlToCreateGame, (body) => {
+      ipcRenderer.send('showGames');
       const parsedBody = JSON.parse(body);
       if (parsedBody.Success) {
         me.setState({

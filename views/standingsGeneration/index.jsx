@@ -81,6 +81,9 @@ class StandingsGeneration extends React.Component {
 
   handleSubmit() {
     const me = this;
+    me.setState({
+      loading: true,
+    });
     const dataToSend = { results: JSON.stringify(this.convertEdditedData()) };
     const currentSelectedRound = remote.getGlobal('CurrentSelectedRound');
     const urlToUploadRealResults = hostUrlForRequests + currentSelectedRound + '/results/real';
@@ -90,7 +93,8 @@ class StandingsGeneration extends React.Component {
       getRequest(urlToGenerateStandings, (bodyAfterGeneration) => {
         const parsedBody = JSON.parse(bodyAfterGeneration);
         me.setState({
-          successfulMsg: parsedBody.Msg,
+          successfulMsg: parsedBody.Msg.Msg,
+          loading: false,
         });
       });
     });
