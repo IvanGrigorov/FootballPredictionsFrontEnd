@@ -1,0 +1,12 @@
+Build image from Dockerfile
+docker build -t testv31 .
+
+Run image with bash
+docker run -it testv31 bash
+
+In bash (container)
+(start like this, because we have not installed electron forge globally )
+./node_modules/.bin/electron make --platform='linux'
+
+Outside Container -> copy output
+docker cp "b2915867836c:/C:UsersIvan GrigorovDesktopFootballPredictionsV3/out" "."
